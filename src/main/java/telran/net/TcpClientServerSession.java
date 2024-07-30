@@ -7,19 +7,20 @@ public class TcpClientServerSession extends Thread{
 	Socket socket;
 	Protocol protocol;
 	TcpServer tcpServer;
+	int time = 30000;
 
 	public TcpClientServerSession(Socket socket, Protocol protocol, TcpServer tcpServer) {
 		this.socket = socket;
 		this.protocol = protocol;
 		this.tcpServer = tcpServer;
 		try {
-            socket.setSoTimeout(60000); 
+            socket.setSoTimeout(time); 
         } catch (SocketException e) {
             throw new RuntimeException(e);
         }
 	}
 	public void run() {
-		try 	(Socket s = socket; // само закроет сокет!
+		try 	(Socket soc = socket; // само закроет сокет!
 				BufferedReader receiver =
 				new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				PrintStream sender = new PrintStream(socket.getOutputStream())){

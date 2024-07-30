@@ -3,6 +3,7 @@ import java.net.*;
 public class TcpServer {
 	Protocol protocol;
 	int port;
+	int time = 30000;
 	boolean running = true;
 	public TcpServer(Protocol protocol, int port) {
 		this.protocol = protocol;
@@ -13,7 +14,7 @@ public class TcpServer {
 	}
 	public void run() {
 		try(ServerSocket serverSocket = new ServerSocket(port)){
-			serverSocket.setSoTimeout(30000);
+			serverSocket.setSoTimeout(time);
 			System.out.println("Server is listening on port " + port);
 			while(running) {
 				Socket socket;
