@@ -21,7 +21,7 @@ public class TcpClientServerSession extends Thread {
     }
 
     public void run() {
-        try (Socket soc = socket; // Автоматическое закрытие сокета
+        try (Socket soc = socket; 
              BufferedReader receiver = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintStream sender = new PrintStream(socket.getOutputStream())) {
 

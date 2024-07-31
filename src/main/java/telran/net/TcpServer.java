@@ -6,7 +6,7 @@ public class TcpServer {
     private int port;
     private volatile boolean running = true;
     private ServerSocket serverSocket;
-    private final int TIMEOUT = 30000; // Таймаут в миллисекундах
+    private final int TIMEOUT = 30000; 
 
     public TcpServer(Protocol protocol, int port) {
         this.protocol = protocol;
@@ -17,7 +17,7 @@ public class TcpServer {
         running = false;
         try {
             if (serverSocket != null && !serverSocket.isClosed()) {
-                serverSocket.close(); // Закрытие ServerSocket прервет текущие accept()
+                serverSocket.close(); 
             }
         } catch (IOException e) {
             e.printStackTrace();
