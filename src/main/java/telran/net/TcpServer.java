@@ -1,34 +1,59 @@
 package telran.net;
+import java.io.IOException;
 import java.net.*;
 public class TcpServer {
-	Protocol protocol;
-	int port;
-	int time = 30000;
-	boolean running = true;
-	public TcpServer(Protocol protocol, int port) {
-		this.protocol = protocol;
-		this.port = port;
-	}
-	public void shutdown() {
-		running = false;
-	}
-	public void run() {
-		try(ServerSocket serverSocket = new ServerSocket(port)){
-			serverSocket.setSoTimeout(time);
-			System.out.println("Server is listening on port " + port);
-			while(running) {
-				Socket socket;
-				try {
-					socket = serverSocket.accept();
-					TcpClientServerSession session =
-					new TcpClientServerSession(socket, protocol, this);
-				session.start();
-				} catch(SocketTimeoutException e) {
-					System.out.println("Server socket timed out.");
-				}
-			}
-		} catch(Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    private Protocol protocol;
+    private int port;
+    private volatile boolean running = true;
+    private ServerSocket serverSocket;
+    private final int TIMEOUT = 30000; // Таймаут в миллисекундах
+
+    public TcpServer(Protocol protocol, int port) {
+        this.protocol = protocol;
+        this.port = port;
+    }
+
+    public void shutdown() {
+        running = false;
+        try {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close(); // Закрытие ServerSocket прервет текущие accept()
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void run() {
+        try {
+            serverSocket = new ServerSocket(port);
+            serverSocket.setSoTimeout(TIMEOUT); 
+            System.out.println("Server is listening on port " + port);
+            while (running) {
+                try {
+                    Socket socket = serverSocket.accept(); 
+                    TcpClientServerSession session = new TcpClientServerSession(socket, protocol, this);
+                    session.start();
+                } catch (SocketTimeoutException e) {
+                    
+                } catch (IOException e) {
+                    if (running) {
+                        e.printStackTrace();
+                    } else {
+                        System.out.println("Server is shutting down.");
+                    }
+                }
+            }
+        } catch (IOException e) {
+            if (running) {
+                throw new RuntimeException(e);
+            } else {
+                System.out.println("Server is shutting down.");
+            }
+        }
+    }
 }
